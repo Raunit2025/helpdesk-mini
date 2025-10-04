@@ -1,0 +1,135 @@
+/* General App Layout */
+.App {
+  text-align: center;
+  background-color: #f4f7f9; 
+  min-height: 100vh;
+  color: #333; 
+}
+
+.App-header {
+  background-color: #ffffff;
+  padding: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #333;
+}
+
+.App-header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.form-container {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 400px;
+}
+
+.form-container h2 {
+  margin-top: 0;
+  color: #0056b3;
+}
+
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+  width: 95%;
+  padding: 12px;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background-color: #fdfdfd;
+  color: #333;
+  font-size: 1rem;
+}
+
+textarea {
+  height: 120px;
+  resize: vertical;
+}
+
+
+input[type="submit"],
+button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff; 
+  color: white;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+input[type="submit"]:hover,
+button:hover {
+  background-color: #0056b3; 
+}
+
+.logout-btn {
+  width: auto;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  background-color: #dc3545; 
+}
+.logout-btn:hover {
+  background-color: #c82333; 
+}
+
+.ticket-list {
+  margin: 20px auto;
+  max-width: 800px;
+}
+
+.ticket {
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.ticket h3 {
+  margin-top: 0;
+  color: #007bff; 
+}
+
+.ticket p {
+  margin: 0.5rem 0;
+}
+
+.ticket-status {
+  text-transform: capitalize;
+  font-weight: bold;
+}
+
+.ticket-status-open {
+  color: #28a745; 
+}
+
+.ticket-status-closed {
+  color: #dc3545; 
+}
+
+.ticket-status-in-progress {
+  color: #ffc107; 
+}
