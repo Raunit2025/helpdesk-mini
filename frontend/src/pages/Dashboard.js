@@ -5,11 +5,25 @@ import Login from '../components/Login';
 import TicketForm from '../components/TicketForm';
 import TicketList from '../components/TicketList';
 import AgentDashboard from '../components/AgentDashboard';
+import Spinner from '../components/Spinner';
 
 const Dashboard = () => {
     const { auth, logout } = useContext(AuthContext);
     const [newTicket, setNewTicket] = useState(null);
 
+    if (auth.loading) {
+        return (
+             <div className="App">
+                <header className="App-header">
+                    <h1>HelpDesk Mini</h1>
+                </header>
+                <main>
+                    <Spinner />
+                </main>
+            </div>
+        );
+    }
+    
     const renderUserView = () => {
         if (!auth.isAuthenticated) {
             return (

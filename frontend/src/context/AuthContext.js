@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { toast } from 'react-toastify';
 
 const AuthContext = createContext();
 
@@ -27,36 +28,22 @@ export const AuthProvider = ({ children }) => {
         const decoded = jwtDecode(token);
         if (decoded.exp * 1000 < Date.now()) {
           localStorage.removeItem("token");
-          setAuth({
-            token: null,
-            isAuthenticated: false,
-            loading: false,
-            user: null,
-          });
+          setAuth({ token: null, isAuthenticated: false, loading: false, user: null });
         } else {
           setAuthToken(token);
-          setAuth({
-            token: token,
-            isAuthenticated: true,
-            loading: false,
-            user: decoded.user,
-          });
+          setAuth({ token: token, isAuthenticated: true, loading: false, user: decoded.user });
         }
       } catch (e) {
-        localStorage.removeItem("token");
-        setAuth({
-          token: null,
-          isAuthenticated: false,
-          loading: false,
-          user: null,
-        });
+         localStorage.removeItem("token");
+         setAuth({ token: null, isAuthenticated: false, loading: false, user: null });
       }
     } else {
-      setAuth((prev) => ({ ...prev, loading: false }));
+      setAuth(prev => ({ ...prev, isAuthenticated: false, loading: false }));
     }
   }, []);
 
   const login = async (formData) => {
+    setAuth(prev => ({ ...prev, loading: true }));
     try {
       const res = await axios.post(`${process.env.REACT_APP_API_URL}/users/login`, formData);
       const { token } = res.data;
@@ -66,11 +53,19 @@ export const AuthProvider = ({ children }) => {
       setAuth({
         token,
         isAuthenticated: true,
-        loading: false,
+        loading: false, 
         user: decoded.user, 
       });
     } catch (err) {
-      console.error('Login failed:', err.response?.data);
+      const errorMsg = err.response?.data?.msg || 'Login failed. Please check your credentials.';
+      toast.error(errorMsg);
+      setAuth(prev => ({ 
+        ...prev,
+        isAuthenticated: false,
+        token: null,
+        user: null,
+        loading: false 
+      }));
     }
   };
 
