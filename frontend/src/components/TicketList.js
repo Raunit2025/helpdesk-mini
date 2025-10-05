@@ -47,14 +47,20 @@ const TicketList = ({ newTicket }) => {
       {tickets.length === 0 ? (
         <p>You have not created any tickets yet.</p>
       ) : (
-        tickets.map((ticket) => (
-          <div key={ticket._id} className="ticket">
-            <h3><Link to={`/ticket/${ticket._id}`} style={{color: '#007bff', textDecoration: 'none'}}>{ticket.title}</Link></h3>
-            <p><strong>Status:</strong> <span className={`ticket-status ${getStatusClass(ticket.status)}`}>{ticket.status}</span></p>
-            <p>{ticket.description}</p>
-            <small>Created on: {new Date(ticket.createdAt).toLocaleString()}</small>
-          </div>
-        ))
+        tickets.map((ticket) => {
+          const isBreached = new Date(ticket.slaDeadline) < new Date() && ticket.status !== 'closed';
+          return (
+            <div key={ticket._id} className="ticket">
+              <h3>
+                <Link to={`/ticket/${ticket._id}`} style={{color: '#007bff', textDecoration: 'none'}}>{ticket.title}</Link>
+                {isBreached && <span style={{ color: 'red', fontSize: '0.8rem', marginLeft: '10px' }}>● SLA BREACHED</span>}
+              </h3>
+              <p><strong>Status:</strong> <span className={`ticket-status ${getStatusClass(ticket.status)}`}>{ticket.status}</span></p>
+              <p>{ticket.description}</p>
+              <small>Created on: {new Date(ticket.createdAt).toLocaleString()}</small>
+            </div>
+          );
+        })
       )}
       {nextOffset !== null && (
         <button onClick={handleLoadMore} style={{ marginTop: '20px' }}>Load More</button>

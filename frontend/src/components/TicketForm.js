@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const TicketForm = ({ onTicketCreated }) => {
   const [formData, setFormData] = useState({ title: '', description: '' });
@@ -9,12 +10,11 @@ const TicketForm = ({ onTicketCreated }) => {
     e.preventDefault();
     try {
       const res = await axios.post('http://localhost:5001/api/tickets', formData);
-      alert('Ticket created successfully!');
+      toast.success('Ticket created successfully!'); 
       setFormData({ title: '', description: '' });
       onTicketCreated(res.data);
     } catch (err) {
-      console.error('Error creating ticket:', err.response.data);
-      alert('Failed to create ticket.');
+      toast.error('Failed to create ticket.'); 
     }
   };
   return (
