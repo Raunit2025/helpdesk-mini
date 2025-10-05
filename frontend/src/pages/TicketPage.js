@@ -17,7 +17,7 @@ const TicketPage = () => {
   useEffect(() => {
     const fetchTicketData = async () => {
       try {
-        const res = await axios.get(`http://localhost:5001/api/tickets/${id}`);
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/tickets/${id}`);
         setTicket(res.data.ticket);
         setComments(res.data.comments);
         setLoading(false);
@@ -34,7 +34,7 @@ const TicketPage = () => {
     if (newComment.trim() === '') return;
 
     try {
-      const res = await axios.post(`http://localhost:5001/api/tickets/${id}/comments`, {
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/tickets/${id}/comments`, {
         text: newComment,
       });
       setComments([...comments, res.data]);

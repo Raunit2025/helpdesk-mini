@@ -9,7 +9,7 @@ const Register = () => {
   const onSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5001/api/users/register', formData);
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/users/register`, formData);
       toast.success('Registration successful! Please log in.');
     } catch (err) {
       const errorMsg = err.response?.data?.msg || 'Registration failed.';

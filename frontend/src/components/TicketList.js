@@ -8,7 +8,7 @@ const TicketList = ({ newTicket }) => {
 
   const fetchTickets = async (offset) => {
     try {
-      const res = await axios.get(`http://localhost:5001/api/tickets?offset=${offset}`);
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/tickets?offset=${offset}`);
       setTickets(prev => (offset === 0 ? res.data.items : [...prev, ...res.data.items]));
       setNextOffset(res.data.next_offset);
     } catch (err) {

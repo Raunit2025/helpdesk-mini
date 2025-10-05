@@ -8,7 +8,7 @@ const AgentDashboard = () => {
 
   const fetchAllTickets = async (offset) => {
     try {
-      const res = await axios.get(`http://localhost:5001/api/tickets/all?offset=${offset}`);
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/tickets/all?offset=${offset}`);
       setTickets(prev => (offset === 0 ? res.data.items : [...prev, ...res.data.items]));
       setNextOffset(res.data.next_offset);
     } catch (err) {
@@ -26,7 +26,7 @@ const AgentDashboard = () => {
       if (!ticketToUpdate) return;
 
       const res = await axios.patch(
-        `http://localhost:5001/api/tickets/${ticketId}/status`,
+        `${process.env.REACT_APP_API_URL}/tickets/${ticketId}/status`,
         { status: newStatus, version: ticketToUpdate.version }
       );
 
