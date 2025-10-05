@@ -4,33 +4,47 @@ import { Link } from 'react-router-dom';
 
 const AgentDashboard = () => {
   const [tickets, setTickets] = useState([]);
+  const [nextOffset, setNextOffset] = useState(0);
 
-  const fetchAllTickets = async () => {
+  const fetchAllTickets = async (offset) => {
     try {
-      const res = await axios.get('http://localhost:5001/api/tickets/all');
-      setTickets(res.data);
+      const res = await axios.get(`http://localhost:5001/api/tickets/all?offset=${offset}`);
+      setTickets(prev => (offset === 0 ? res.data.items : [...prev, ...res.data.items]));
+      setNextOffset(res.data.next_offset);
     } catch (err) {
       console.error('Error fetching tickets:', err);
     }
   };
 
   useEffect(() => {
-    fetchAllTickets();
+    fetchAllTickets(0);
   }, []);
 
   const handleStatusChange = async (ticketId, newStatus) => {
     try {
+      const ticketToUpdate = tickets.find(t => t._id === ticketId);
+      if (!ticketToUpdate) return;
+
       const res = await axios.patch(
         `http://localhost:5001/api/tickets/${ticketId}/status`,
-        { status: newStatus }
+        { status: newStatus, version: ticketToUpdate.version } 
       );
-      // Update the ticket in the local state to reflect the change immediately
+      
       setTickets(
         tickets.map((ticket) => (ticket._id === ticketId ? res.data : ticket))
       );
     } catch (err) {
       console.error('Error updating status:', err.response?.data);
-      alert('Failed to update status.');
+      alert(err.response?.data?.error?.message || 'Failed to update status. Please refresh and try again.');
+      if (err.response?.status === 409) {
+        fetchAllTickets(0);
+      }
+    }
+  };
+
+  const handleLoadMore = () => {
+    if (nextOffset !== null) {
+      fetchAllTickets(nextOffset);
     }
   };
 
@@ -60,6 +74,9 @@ const AgentDashboard = () => {
             </div>
           </div>
         ))
+      )}
+      {nextOffset !== null && (
+        <button onClick={handleLoadMore} style={{ marginTop: '20px' }}>Load More</button>
       )}
     </div>
   );

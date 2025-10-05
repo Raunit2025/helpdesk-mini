@@ -45,8 +45,20 @@ router.post(
 
 router.get('/', auth, async (req, res) => {
   try {
-    const tickets = await Ticket.find({ user: req.user.id }).sort({ createdAt: -1 });
-    res.json(tickets);
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = parseInt(req.query.offset) || 0;
+
+    const query = { user: req.user.id };
+    
+    const tickets = await Ticket.find(query)
+      .sort({ createdAt: -1 })
+      .skip(offset)
+      .limit(limit);
+      
+    const total = await Ticket.countDocuments(query);
+    const next_offset = offset + tickets.length < total ? offset + tickets.length : null;
+
+    res.json({ items: tickets, next_offset });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -56,8 +68,18 @@ router.get('/', auth, async (req, res) => {
 
 router.get('/all', [auth, checkRole('agent', 'admin')], async (req, res) => {
   try {
-    const tickets = await Ticket.find().sort({ createdAt: -1 });
-    res.json(tickets);
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = parseInt(req.query.offset) || 0;
+
+    const tickets = await Ticket.find()
+      .sort({ createdAt: -1 })
+      .skip(offset)
+      .limit(limit);
+
+    const total = await Ticket.countDocuments();
+    const next_offset = offset + tickets.length < total ? offset + tickets.length : null;
+
+    res.json({ items: tickets, next_offset });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -68,25 +90,40 @@ router.get('/all', [auth, checkRole('agent', 'admin')], async (req, res) => {
 
 router.patch('/:id/status', [auth, checkRole('agent', 'admin')], async (req, res) => {
   try {
-    const { status } = req.body;
-    
+    const { status, version } = req.body;
+
     if (!['open', 'in-progress', 'closed'].includes(status)) {
-        return res.status(400).json({ msg: 'Invalid status' });
+      return res.status(400).json({ msg: 'Invalid status' });
     }
 
-    const ticket = await Ticket.findById(req.params.id);
-    if (!ticket) {
-      return res.status(404).json({ msg: 'Ticket not found' });
+
+    const update = {
+      $set: { status },
+      $inc: { version: 1 },
+    };
+
+    const updatedTicket = await Ticket.findOneAndUpdate(
+      { _id: req.params.id, version: version },
+      update,
+      { new: true }
+    );
+
+    if (!updatedTicket) {
+      const ticketExists = await Ticket.findById(req.params.id);
+      if (!ticketExists) {
+        return res.status(404).json({ msg: 'Ticket not found' });
+      }
+
+      return res.status(409).json({
+        error: {
+          code: 'CONFLICT',
+          message: 'This ticket has been modified by someone else. Please refresh and try again.',
+        },
+      });
     }
 
-    ticket.status = status;
-    
-    if (!ticket.assignedTo) {
-        ticket.assignedTo = req.user.id;
-    }
+    res.json(updatedTicket);
 
-    await ticket.save();
-    res.json(ticket);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -107,6 +144,44 @@ router.get('/:id', auth, async (req, res) => {
     const comments = await Comment.find({ ticket: req.params.id }).sort({ createdAt: 'asc' });
 
     res.json({ ticket, comments });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+router.patch('/:id/status', [auth, checkRole('agent', 'admin')], async (req, res) => {
+  try {
+    const { status, version } = req.body; 
+
+    if (!['open', 'in-progress', 'closed'].includes(status)) {
+      return res.status(400).json({ msg: 'Invalid status' });
+    }
+
+    const ticket = await Ticket.findById(req.params.id);
+    if (!ticket) {
+      return res.status(404).json({ msg: 'Ticket not found' });
+    }
+
+    if (version !== undefined && ticket.version !== version) {
+      return res.status(409).json({ 
+        error: {
+          code: 'CONFLICT',
+          message: 'This ticket has been modified by someone else. Please refresh and try again.',
+        },
+      });
+    }
+
+    ticket.status = status;
+    
+    if (!ticket.assignedTo) {
+      ticket.assignedTo = req.user.id;
+    }
+
+    ticket.version += 1; 
+
+    await ticket.save();
+    res.json(ticket);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -148,5 +223,6 @@ router.post(
     }
   }
 );
+
 
 module.exports = router;

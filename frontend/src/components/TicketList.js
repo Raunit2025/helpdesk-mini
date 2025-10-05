@@ -2,25 +2,35 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
-
 const TicketList = ({ newTicket }) => {
   const [tickets, setTickets] = useState([]);
+  const [nextOffset, setNextOffset] = useState(0);
+
+  const fetchTickets = async (offset) => {
+    try {
+      const res = await axios.get(`http://localhost:5001/api/tickets?offset=${offset}`);
+      setTickets(prev => (offset === 0 ? res.data.items : [...prev, ...res.data.items]));
+      setNextOffset(res.data.next_offset);
+    } catch (err) {
+      console.error('Error fetching tickets:', err);
+    }
+  };
+
   useEffect(() => {
-    const fetchTickets = async () => {
-      try {
-        const res = await axios.get('http://localhost:5001/api/tickets');
-        setTickets(res.data);
-      } catch (err) {
-        console.error('Error fetching tickets:', err);
-      }
-    };
-    fetchTickets();
+    fetchTickets(0);
   }, []);
+
   useEffect(() => {
     if (newTicket) {
       setTickets(prevTickets => [newTicket, ...prevTickets]);
     }
   }, [newTicket]);
+
+  const handleLoadMore = () => {
+    if (nextOffset !== null) {
+      fetchTickets(nextOffset);
+    }
+  };
 
   const getStatusClass = (status) => {
     switch (status) {
@@ -29,7 +39,7 @@ const TicketList = ({ newTicket }) => {
       case 'in-progress': return 'ticket-status-in-progress';
       default: return '';
     }
-  }
+  };
 
   return (
     <div className="ticket-list">
@@ -46,7 +56,11 @@ const TicketList = ({ newTicket }) => {
           </div>
         ))
       )}
+      {nextOffset !== null && (
+        <button onClick={handleLoadMore} style={{ marginTop: '20px' }}>Load More</button>
+      )}
     </div>
   );
 };
+
 export default TicketList;
