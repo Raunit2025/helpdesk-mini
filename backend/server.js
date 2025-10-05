@@ -54,12 +54,11 @@ app.get('/api/_meta', (req, res) => {
   });
 });
 
-// Hackathon manifest file
 app.get('/.well-known/hackathon.json', (req, res) => {
   res.status(200).json({
     name: 'HelpDesk Mini',
     project_url: 'https://github.com/Raunit2025/helpdesk-mini',
-    live_demo_url: 'your-live-demo-url-if-you-deploy-it', // Optional
+    live_demo_url: 'https://papaya-cobbler-febfb4.netlify.app/', 
   });
 });
 
