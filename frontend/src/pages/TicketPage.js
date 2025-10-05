@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect} from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import Spinner from '../components/Spinner';
-import AuthContext from '../context/AuthContext';
 import { toast } from 'react-toastify';
 
 const TicketPage = () => {
   const { id } = useParams();
-  const { auth } = useContext(AuthContext);
 
   const [ticket, setTicket] = useState(null);
   const [comments, setComments] = useState([]);
