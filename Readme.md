@@ -2,7 +2,7 @@
 
 HelpDesk Mini is a full-stack ticketing system built with the MERN stack (MongoDB, Express, React, Node.js). It features role-based access for users and agents, a commenting system, and a robust API designed to meet modern web standards.
 
-**Live Demo URL:** `https://papaya-cobbler-febfb4.netlify.app/`
+**Live Demo URL:** [https://papaya-cobbler-febfb4.netlify.app/]
 
 ---
 
